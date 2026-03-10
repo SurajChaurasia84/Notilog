@@ -65,7 +65,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         final notifications = widget.controller.notifications;
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Notification History'),
+            title: Row(
+              children: [
+                Image.asset(
+                  'assets/bell.png',
+                  width: 30,
+                  height: 30,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Notilog',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
             actions: [
               IconButton(
                 tooltip: 'Filter',
@@ -76,9 +89,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 tooltip: 'Clear all',
                 onPressed: notifications.isEmpty
                     ? null
-                    : () async {
-                        await widget.controller.clearAll();
-                      },
+                    : () => _confirmClearAll(context),
                 icon: const Icon(Icons.delete_sweep_outlined),
               ),
             ],
@@ -93,6 +104,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 padding: const EdgeInsets.all(16),
                 child: TextField(
                   controller: _searchController,
+                  autofocus: false,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.search),
                     hintText: 'Search notifications',
@@ -101,6 +113,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
+              ),
+              _CategoryTabs(
+                value: widget.controller.categoryFilter,
+                onChanged: widget.controller.setCategoryFilter,
               ),
               Expanded(
                 child: notifications.isEmpty
@@ -112,8 +128,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           return NotificationTile(
                             entry: entry,
                             onTap: () => _openDetail(context, entry),
-                            onDelete: () =>
-                                widget.controller.deleteEntry(entry),
+                            onDelete: () => _confirmDelete(context, entry),
                           );
                         },
                       ),
@@ -145,6 +160,119 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         onApply: (app, packageName) {
           widget.controller.setFilters(appName: app, packageName: packageName);
         },
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    NotificationEntry entry,
+  ) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete notification'),
+        content: const Text('Are you sure you want to delete this notification?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (result == true) {
+      await widget.controller.deleteEntry(entry);
+    }
+  }
+
+  Future<void> _confirmClearAll(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear all history'),
+        content: const Text('Delete all stored notifications?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+    if (result == true) {
+      await widget.controller.clearAll();
+    }
+  }
+}
+
+class _CategoryTabs extends StatelessWidget {
+  const _CategoryTabs({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final AppCategoryFilter value;
+  final ValueChanged<AppCategoryFilter> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        children: [
+          _buildTab(theme, AppCategoryFilter.all, 'All'),
+          _buildTab(theme, AppCategoryFilter.allApps, 'All Apps'),
+          _buildTab(theme, AppCategoryFilter.systemApps, 'System Apps'),
+          _buildTab(theme, AppCategoryFilter.other, 'Other'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTab(
+    ThemeData theme,
+    AppCategoryFilter filter,
+    String label,
+  ) {
+    final selected = value == filter;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => onChanged(filter),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: selected
+                    ? theme.colorScheme.primary
+                    : Colors.transparent,
+                width: 2,
+              ),
+            ),
+          ),
+          child: Text(
+            label,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: selected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurfaceVariant,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            ),
+          ),
+        ),
       ),
     );
   }

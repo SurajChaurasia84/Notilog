@@ -16,10 +16,10 @@ class NotificationController extends ChangeNotifier {
   String _query = '';
   String? _appFilter;
   String? _packageFilter;
-  TimeFilter _timeFilter = TimeFilter.more;
+  AppCategoryFilter _categoryFilter = AppCategoryFilter.all;
 
   List<NotificationEntry> get notifications => _filtered;
-  TimeFilter get timeFilter => _timeFilter;
+  AppCategoryFilter get categoryFilter => _categoryFilter;
 
   List<String> get appNames =>
       _all.map((e) => e.appName).where((e) => e.isNotEmpty).toSet().toList()
@@ -35,8 +35,8 @@ class NotificationController extends ChangeNotifier {
   String? get appFilter => _appFilter;
   String? get packageFilter => _packageFilter;
 
-  void setTimeFilter(TimeFilter filter) {
-    _timeFilter = filter;
+  void setCategoryFilter(AppCategoryFilter filter) {
+    _categoryFilter = filter;
     _applyFilters();
     notifyListeners();
   }
@@ -108,36 +108,53 @@ class NotificationController extends ChangeNotifier {
           e.title.toLowerCase().contains(lower) ||
           e.message.toLowerCase().contains(lower));
     }
-    items = _applyTimeFilter(items);
+    items = _applyCategoryFilter(items);
     _filtered = items.toList();
   }
 
-  Iterable<NotificationEntry> _applyTimeFilter(
+  Iterable<NotificationEntry> _applyCategoryFilter(
     Iterable<NotificationEntry> items,
   ) {
-    if (_timeFilter == TimeFilter.recent) {
-      return items.take(10);
-    }
-    final now = DateTime.now();
-    final todayStart = DateTime(now.year, now.month, now.day);
-    final tomorrowStart = todayStart.add(const Duration(days: 1));
-    final dayAfterTomorrowStart = todayStart.add(const Duration(days: 2));
-
-    switch (_timeFilter) {
-      case TimeFilter.today:
-        return items.where((e) =>
-            e.dateTime.isAfter(todayStart) &&
-            e.dateTime.isBefore(tomorrowStart));
-      case TimeFilter.tomorrow:
-        return items.where((e) =>
-            e.dateTime.isAfter(tomorrowStart) &&
-            e.dateTime.isBefore(dayAfterTomorrowStart));
-      case TimeFilter.more:
-        return items.where((e) => e.dateTime.isBefore(todayStart));
-      case TimeFilter.recent:
+    switch (_categoryFilter) {
+      case AppCategoryFilter.all:
         return items;
+      case AppCategoryFilter.allApps:
+        return items.where((e) => !_isSystemPackage(e.packageName));
+      case AppCategoryFilter.systemApps:
+        return items.where((e) => _isSystemPackage(e.packageName));
+      case AppCategoryFilter.other:
+        return items.where((e) => _isOtherCategory(e));
     }
+  }
+
+  bool _isOtherCategory(NotificationEntry entry) {
+    if (entry.appName.isEmpty || entry.packageName.isEmpty) {
+      return true;
+    }
+    final normalizedApp = entry.appName.toLowerCase();
+    final normalizedPackage = entry.packageName.toLowerCase();
+    return normalizedApp == normalizedPackage && !_isSystemPackage(entry.packageName);
+  }
+
+  bool _isSystemPackage(String packageName) {
+    final lower = packageName.toLowerCase();
+    const prefixes = [
+      'android',
+      'com.android',
+      'com.google.android',
+      'com.samsung.android',
+      'com.miui',
+      'com.oneplus',
+      'com.oppo',
+      'com.vivo',
+      'com.huawei',
+      'com.motorola',
+      'com.lenovo',
+      'com.realme',
+      'com.coloros',
+    ];
+    return prefixes.any((prefix) => lower.startsWith(prefix));
   }
 }
 
-enum TimeFilter { recent, today, tomorrow, more }
+enum AppCategoryFilter { all, allApps, systemApps, other }

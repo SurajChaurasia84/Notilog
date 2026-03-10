@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'database/hive_boxes.dart';
@@ -28,22 +29,45 @@ class NotificationHistoryApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const seed = Color(0xFF1F6FE5);
     final baseTheme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: seed,
+        background: const Color(0xFFF4F6FA),
+        surface: Colors.white,
+        surfaceVariant: const Color(0xFFE9EEF6),
+      ),
+      scaffoldBackgroundColor: const Color(0xFFF4F6FA),
       useMaterial3: true,
     );
     return MaterialApp(
       title: 'Notification History',
       debugShowCheckedModeBanner: false,
       theme: baseTheme.copyWith(
-        appBarTheme: const AppBarTheme(centerTitle: false),
+        appBarTheme: const AppBarTheme(
+          centerTitle: false,
+          backgroundColor: Color(0xFFF4F6FA),
+        ),
+        cardTheme: const CardThemeData(
+          color: Colors.white,
+          surfaceTintColor: Colors.white,
+        ),
+        listTileTheme: const ListTileThemeData(
+          tileColor: Colors.white,
+        ),
+        textTheme: GoogleFonts.poppinsTextTheme(baseTheme.textTheme),
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.indigo,
+          seedColor: seed,
           brightness: Brightness.dark,
+          background: const Color(0xFF0F131A),
+          surface: const Color(0xFF161B24),
+          surfaceVariant: const Color(0xFF202736),
         ),
+        scaffoldBackgroundColor: const Color(0xFF0F131A),
         useMaterial3: true,
+        textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
       ),
       home: HomeScreen(controller: controller),
     );

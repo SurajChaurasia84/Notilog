@@ -14,7 +14,38 @@ class NotificationDetailScreen extends StatelessWidget {
         DateFormat('MMM d, yyyy • h:mm a').format(entry.dateTime);
     return Scaffold(
       appBar: AppBar(
-        title: Text(entry.appName),
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            if (entry.appIcon != null)
+              ClipOval(
+                child: Image.memory(
+                  entry.appIcon!,
+                  width: 24,
+                  height: 24,
+                  fit: BoxFit.cover,
+                ),
+              )
+            else
+              CircleAvatar(
+                radius: 12,
+                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                child: Text(
+                  entry.appName.isNotEmpty
+                      ? entry.appName[0].toUpperCase()
+                      : '?',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                entry.appName,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
