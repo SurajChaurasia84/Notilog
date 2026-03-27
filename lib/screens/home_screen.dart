@@ -178,11 +178,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       showDragHandle: true,
       builder: (_) => FilterSheet(
         appNames: widget.controller.appNames,
-        packageNames: widget.controller.packageNames,
         selectedApp: widget.controller.appFilter,
-        selectedPackage: widget.controller.packageFilter,
-        onApply: (app, packageName) {
-          widget.controller.setFilters(appName: app, packageName: packageName);
+        onApply: (app) {
+          widget.controller.setFilters(appName: app);
         },
       ),
     );

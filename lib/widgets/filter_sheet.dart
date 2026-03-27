@@ -4,17 +4,13 @@ class FilterSheet extends StatefulWidget {
   const FilterSheet({
     super.key,
     required this.appNames,
-    required this.packageNames,
     required this.selectedApp,
-    required this.selectedPackage,
     required this.onApply,
   });
 
   final List<String> appNames;
-  final List<String> packageNames;
   final String? selectedApp;
-  final String? selectedPackage;
-  final void Function(String? appName, String? packageName) onApply;
+  final void Function(String? appName) onApply;
 
   @override
   State<FilterSheet> createState() => _FilterSheetState();
@@ -22,13 +18,11 @@ class FilterSheet extends StatefulWidget {
 
 class _FilterSheetState extends State<FilterSheet> {
   String? _app;
-  String? _package;
 
   @override
   void initState() {
     super.initState();
     _app = widget.selectedApp;
-    _package = widget.selectedPackage;
   }
 
   @override
@@ -67,29 +61,6 @@ class _FilterSheetState extends State<FilterSheet> {
               ],
               onChanged: (value) => setState(() => _app = value),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Package Name',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String?>(
-              value: _package,
-              isExpanded: true,
-              items: [
-                const DropdownMenuItem<String?>(
-                  value: null,
-                  child: Text('All packages'),
-                ),
-                ...widget.packageNames.map(
-                  (name) => DropdownMenuItem<String?>(
-                    value: name,
-                    child: Text(name),
-                  ),
-                ),
-              ],
-              onChanged: (value) => setState(() => _package = value),
-            ),
             const SizedBox(height: 24),
             Row(
               children: [
@@ -98,7 +69,6 @@ class _FilterSheetState extends State<FilterSheet> {
                     onPressed: () {
                       setState(() {
                         _app = null;
-                        _package = null;
                       });
                     },
                     child: const Text('Clear'),
@@ -108,7 +78,7 @@ class _FilterSheetState extends State<FilterSheet> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      widget.onApply(_app, _package);
+                      widget.onApply(_app);
                       Navigator.of(context).pop();
                     },
                     child: const Text('Apply'),

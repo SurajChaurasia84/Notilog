@@ -15,7 +15,6 @@ class NotificationController extends ChangeNotifier {
   List<NotificationEntry> _filtered = [];
   String _query = '';
   String? _appFilter;
-  String? _packageFilter;
   AppCategoryFilter _categoryFilter = AppCategoryFilter.all;
 
   List<NotificationEntry> get notifications => _filtered;
@@ -25,15 +24,7 @@ class NotificationController extends ChangeNotifier {
       _all.map((e) => e.appName).where((e) => e.isNotEmpty).toSet().toList()
         ..sort();
 
-  List<String> get packageNames => _all
-      .map((e) => e.packageName)
-      .where((e) => e.isNotEmpty)
-      .toSet()
-      .toList()
-    ..sort();
-
   String? get appFilter => _appFilter;
-  String? get packageFilter => _packageFilter;
 
   void setCategoryFilter(AppCategoryFilter filter) {
     _categoryFilter = filter;
@@ -65,10 +56,8 @@ class NotificationController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setFilters({String? appName, String? packageName}) {
+  void setFilters({String? appName}) {
     _appFilter = (appName == null || appName.isEmpty) ? null : appName;
-    _packageFilter =
-        (packageName == null || packageName.isEmpty) ? null : packageName;
     _applyFilters();
     notifyListeners();
   }
@@ -98,9 +87,6 @@ class NotificationController extends ChangeNotifier {
     Iterable<NotificationEntry> items = _all;
     if (_appFilter != null) {
       items = items.where((e) => e.appName == _appFilter);
-    }
-    if (_packageFilter != null) {
-      items = items.where((e) => e.packageName == _packageFilter);
     }
     if (_query.isNotEmpty) {
       final lower = _query.toLowerCase();
