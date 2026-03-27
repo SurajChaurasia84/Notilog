@@ -14,6 +14,8 @@ class NotificationDetailScreen extends StatelessWidget {
         DateFormat('MMM d, yyyy • h:mm a').format(entry.dateTime);
     return Scaffold(
       appBar: AppBar(
+        // elevation: 0,
+        surfaceTintColor: Colors.transparent,
         titleSpacing: 0,
         title: Row(
           children: [
@@ -47,7 +49,7 @@ class NotificationDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
