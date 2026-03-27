@@ -128,12 +128,62 @@ class NotificationController extends ChangeNotifier {
   }
 
   bool _isOtherCategory(NotificationEntry entry) {
-    if (entry.appName.isEmpty || entry.packageName.isEmpty) {
-      return true;
-    }
-    final normalizedApp = entry.appName.toLowerCase();
-    final normalizedPackage = entry.packageName.toLowerCase();
-    return normalizedApp == normalizedPackage && !_isSystemPackage(entry.packageName);
+    final packageName = entry.packageName.toLowerCase();
+    final title = entry.title.toLowerCase();
+    final message = entry.message.toLowerCase();
+    final appName = entry.appName.toLowerCase();
+    final content = '$appName $title $message';
+
+    const packageHints = [
+      'android',
+      'com.android',
+      'com.google.android',
+      'com.samsung.android',
+      'com.miui',
+      'com.oneplus',
+      'com.oppo',
+      'com.vivo',
+      'com.huawei',
+      'com.motorola',
+      'com.realme',
+      'com.coloros',
+      'com.android.systemui',
+      'com.google.android.systemui',
+      'com.android.settings',
+      'com.google.android.settings',
+    ];
+
+    const notificationHints = [
+      'low battery',
+      'battery low',
+      'battery saver',
+      'power saving',
+      'data saver',
+      'focus mode',
+      'do not disturb',
+      'charging',
+      'charged',
+      'charger connected',
+      'charger disconnected',
+      'usb connected',
+      'usb debugging',
+      'bluetooth',
+      'hotspot',
+      'portable hotspot',
+      'wifi hotspot',
+      'mobile hotspot',
+      'tethering',
+      'device control',
+      'system ui',
+      'android system',
+    ];
+
+    final matchesPackage =
+        packageHints.any((prefix) => packageName.startsWith(prefix));
+    final matchesContent =
+        notificationHints.any((keyword) => content.contains(keyword));
+
+    return matchesPackage && matchesContent;
   }
 
   bool _isSystemPackage(String packageName) {
