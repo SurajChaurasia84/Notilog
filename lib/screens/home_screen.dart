@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final NotificationChannel _channel = NotificationChannel();
   bool _permissionEnabled = false;
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -34,6 +35,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _loadPermissionStatus();
     _searchController.addListener(() {
       widget.controller.setSearchQuery(_searchController.text);
+    });
+    _searchFocusNode.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
@@ -55,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -107,9 +114,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 padding: const EdgeInsets.all(16),
                 child: TextField(
                   controller: _searchController,
+                  focusNode: _searchFocusNode,
                   autofocus: false,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchFocusNode.hasFocus
+                        ? IconButton(
+                            onPressed: () {
+                              _searchController.clear();
+                              widget.controller.setSearchQuery('');
+                              _searchFocusNode.unfocus();
+                            },
+                            icon: const Icon(Icons.close),
+                            tooltip: 'Close keyboard',
+                          )
+                        : null,
                     hintText: 'Search notifications',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
