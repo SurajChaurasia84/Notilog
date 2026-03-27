@@ -30,6 +30,15 @@ class NotificationHistoryApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const seed = Color(0xFF1F6FE5);
+    const transitionsTheme = PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: _SmoothPageTransitionsBuilder(),
+        TargetPlatform.iOS: _SmoothPageTransitionsBuilder(),
+        TargetPlatform.linux: _SmoothPageTransitionsBuilder(),
+        TargetPlatform.macOS: _SmoothPageTransitionsBuilder(),
+        TargetPlatform.windows: _SmoothPageTransitionsBuilder(),
+      },
+    );
     final baseTheme = ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: seed,
@@ -38,6 +47,7 @@ class NotificationHistoryApp extends StatelessWidget {
         surfaceVariant: const Color(0xFFE9EEF6),
       ),
       scaffoldBackgroundColor: const Color(0xFFF4F6FA),
+      pageTransitionsTheme: transitionsTheme,
       useMaterial3: true,
     );
     return MaterialApp(
@@ -66,10 +76,37 @@ class NotificationHistoryApp extends StatelessWidget {
           surfaceVariant: const Color(0xFF202736),
         ),
         scaffoldBackgroundColor: const Color(0xFF0F131A),
+        pageTransitionsTheme: transitionsTheme,
         useMaterial3: true,
         textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
       ),
       home: HomeScreen(controller: controller),
+    );
+  }
+}
+
+class _SmoothPageTransitionsBuilder extends PageTransitionsBuilder {
+  const _SmoothPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.linear,
+    );
+    return FadeTransition(
+      opacity: Tween<double>(
+        begin: 0.85,
+        end: 1,
+      ).animate(curved),
+      child: child,
     );
   }
 }

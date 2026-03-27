@@ -166,8 +166,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   void _openDetail(BuildContext context, NotificationEntry entry) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => NotificationDetailScreen(entry: entry),
+      PageRouteBuilder<void>(
+        transitionDuration: const Duration(milliseconds: 280),
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (_, animation, secondaryAnimation) =>
+            NotificationDetailScreen(entry: entry),
+        transitionsBuilder: (_, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.linear,
+          );
+          return FadeTransition(
+            opacity: Tween<double>(begin: 0.85, end: 1).animate(curved),
+            child: child,
+          );
+        },
       ),
     );
   }
