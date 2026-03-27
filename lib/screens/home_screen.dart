@@ -234,7 +234,7 @@ class _CategoryTabs extends StatelessWidget {
           _buildTab(theme, AppCategoryFilter.all, 'All'),
           _buildTab(theme, AppCategoryFilter.allApps, 'Installed'),
           _buildTab(theme, AppCategoryFilter.systemApps, 'System Apps'),
-          _buildTab(theme, AppCategoryFilter.other, 'Other'),
+          _buildTab(theme, AppCategoryFilter.other, 'Others'),
         ],
       ),
     );
