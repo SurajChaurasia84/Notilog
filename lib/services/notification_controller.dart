@@ -10,6 +10,7 @@ class NotificationController extends ChangeNotifier {
 
   final NotificationRepository _repository;
   StreamSubscription<NotificationEntry>? _subscription;
+  Timer? _pruneTimer;
 
   List<NotificationEntry> _all = [];
   List<NotificationEntry> _filtered = [];
@@ -33,6 +34,7 @@ class NotificationController extends ChangeNotifier {
   }
 
   Future<void> initialize() async {
+    await _repository.pruneExpired();
     _all = _repository.getAllSorted();
     _applyFilters();
     await _repository.initialize();
@@ -41,6 +43,11 @@ class NotificationController extends ChangeNotifier {
       _all.insert(0, entry);
       _applyFilters();
       notifyListeners();
+    });
+    _pruneTimer?.cancel();
+    _pruneTimer = Timer.periodic(const Duration(minutes: 15), (_) async {
+      await _repository.pruneExpired();
+      await refreshFromRepository();
     });
   }
 
@@ -78,6 +85,7 @@ class NotificationController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _pruneTimer?.cancel();
     _subscription?.cancel();
     _repository.dispose();
     super.dispose();

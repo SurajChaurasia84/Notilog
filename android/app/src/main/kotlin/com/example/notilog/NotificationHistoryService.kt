@@ -11,14 +11,12 @@ import android.util.Base64
 import android.util.Log
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileWriter
 
 class NotificationHistoryService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val payload = buildPayload(sbn) ?: return
         try {
-            appendToBuffer(payload)
+            NativeNotificationBuffer.appendRecent(applicationContext, payload)
             NotificationEventStream.postNotification(payload.toMap())
         } catch (e: Exception) {
             Log.w("NotificationHistory", "Failed to store notification", e)
@@ -87,26 +85,4 @@ class NotificationHistoryService : NotificationListenerService() {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
         return output.toByteArray()
     }
-
-    private fun appendToBuffer(payload: JSONObject) {
-        val file = bufferFile()
-        FileWriter(file, true).use { writer ->
-            writer.append(payload.toString())
-            writer.append('\n')
-        }
-    }
-
-    private fun bufferFile(): File {
-        return File(applicationContext.filesDir, "notification_buffer.jsonl")
-    }
-}
-
-private fun JSONObject.toMap(): Map<String, Any?> {
-    val map = mutableMapOf<String, Any?>()
-    val keys = keys()
-    while (keys.hasNext()) {
-        val key = keys.next()
-        map[key] = get(key)
-    }
-    return map
 }

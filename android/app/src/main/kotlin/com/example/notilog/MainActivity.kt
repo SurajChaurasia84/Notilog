@@ -6,8 +6,6 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
-import org.json.JSONObject
-import java.io.File
 
 class MainActivity : FlutterActivity() {
     private val methodChannelName = "notilog/native"
@@ -51,31 +49,6 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun drainNotificationBuffer(): List<Map<String, Any?>> {
-        val file = File(applicationContext.filesDir, "notification_buffer.jsonl")
-        if (!file.exists()) {
-            return emptyList()
-        }
-        val items = mutableListOf<Map<String, Any?>>()
-        val lines = file.readLines()
-        for (line in lines) {
-            if (line.isBlank()) continue
-            try {
-                val json = JSONObject(line)
-                items.add(json.toMap())
-            } catch (_: Exception) {
-            }
-        }
-        file.writeText("")
-        return items
+        return NativeNotificationBuffer.drainRecent(applicationContext)
     }
-}
-
-private fun JSONObject.toMap(): Map<String, Any?> {
-    val map = mutableMapOf<String, Any?>()
-    val keys = keys()
-    while (keys.hasNext()) {
-        val key = keys.next()
-        map[key] = get(key)
-    }
-    return map
 }
