@@ -65,6 +65,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         final notifications = widget.controller.notifications;
         return Scaffold(
           appBar: AppBar(
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
             title: Row(
               children: [
                 Image.asset(
