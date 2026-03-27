@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 
 import '../models/notification_entry.dart';
@@ -19,19 +20,25 @@ class NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
+    final theme = Theme.of(context);
+    return Slidable(
       key: ValueKey(entry.id),
-      background: Container(
-        color: Theme.of(context).colorScheme.errorContainer,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 16),
-        child: Icon(
-          Icons.delete_outline,
-          color: Theme.of(context).colorScheme.onErrorContainer,
-        ),
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        extentRatio: 0.22,
+        children: [
+          CustomSlidableAction(
+            onPressed: (_) => onDelete(),
+            backgroundColor: theme.colorScheme.errorContainer,
+            borderRadius: BorderRadius.circular(12),
+            child: Icon(
+              Icons.delete_outline,
+              size: 30,
+              color: theme.colorScheme.onErrorContainer,
+            ),
+          ),
+        ],
       ),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) => onDelete(),
       child: ListTile(
         leading: _AppIcon(iconBytes: entry.appIcon, fallback: entry.appName),
         title: Text(
@@ -46,7 +53,7 @@ class NotificationTile extends StatelessWidget {
         ),
         trailing: Text(
           _formatTime(entry.dateTime),
-          style: Theme.of(context).textTheme.labelMedium,
+          style: theme.textTheme.labelMedium,
         ),
         onTap: onTap,
       ),
