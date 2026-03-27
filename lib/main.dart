@@ -41,7 +41,7 @@ class NotificationHistoryApp extends StatelessWidget {
       useMaterial3: true,
     );
     return MaterialApp(
-      title: 'Notification History',
+      title: 'Notilog',
       debugShowCheckedModeBanner: false,
       theme: baseTheme.copyWith(
         appBarTheme: const AppBarTheme(
