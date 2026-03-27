@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../models/notification_entry.dart';
 import '../services/notification_channel.dart';
@@ -123,16 +124,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               Expanded(
                 child: notifications.isEmpty
                     ? const EmptyState()
-                    : ListView.builder(
-                        itemCount: notifications.length,
-                        itemBuilder: (context, index) {
-                          final entry = notifications[index];
-                          return NotificationTile(
-                            entry: entry,
-                            onTap: () => _openDetail(context, entry),
-                            onDelete: () => _confirmDelete(context, entry),
-                          );
-                        },
+                    : SlidableAutoCloseBehavior(
+                        child: ListView.builder(
+                          itemCount: notifications.length,
+                          itemBuilder: (context, index) {
+                            final entry = notifications[index];
+                            return NotificationTile(
+                              entry: entry,
+                              onTap: () => _openDetail(context, entry),
+                              onDelete: () => _confirmDelete(context, entry),
+                            );
+                          },
+                        ),
                       ),
               ),
             ],
