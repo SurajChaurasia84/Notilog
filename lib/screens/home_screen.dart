@@ -232,7 +232,7 @@ class _CategoryTabs extends StatelessWidget {
       child: Row(
         children: [
           _buildTab(theme, AppCategoryFilter.all, 'All'),
-          _buildTab(theme, AppCategoryFilter.allApps, 'All Apps'),
+          _buildTab(theme, AppCategoryFilter.allApps, 'Installed'),
           _buildTab(theme, AppCategoryFilter.systemApps, 'System Apps'),
           _buildTab(theme, AppCategoryFilter.other, 'Other'),
         ],
