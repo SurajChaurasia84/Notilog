@@ -29,6 +29,19 @@ class MainActivity : FlutterActivity() {
                     "drainNotificationBuffer" -> {
                         result.success(drainNotificationBuffer())
                     }
+                    "launchApp" -> {
+                        val packageName = call.argument<String>("packageName")
+                        if (packageName != null) {
+                            val success = launchApp(packageName)
+                            if (success) {
+                                result.success(true)
+                            } else {
+                                result.error("LAUNCH_FAILED", "Could not find launch intent for $packageName", null)
+                            }
+                        } else {
+                            result.error("INVALID_ARGUMENT", "Package name is null", null)
+                        }
+                    }
                     else -> result.notImplemented()
                 }
             }
@@ -50,5 +63,15 @@ class MainActivity : FlutterActivity() {
 
     private fun drainNotificationBuffer(): List<Map<String, Any?>> {
         return NativeNotificationBuffer.drainRecent(applicationContext)
+    }
+
+    private fun launchApp(packageName: String): Boolean {
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+        if (launchIntent != null) {
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(launchIntent)
+            return true
+        }
+        return false
     }
 }

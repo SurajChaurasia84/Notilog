@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/notification_entry.dart';
+import '../services/notification_channel.dart';
 
 class NotificationDetailScreen extends StatelessWidget {
   const NotificationDetailScreen({super.key, required this.entry});
@@ -16,7 +17,6 @@ class NotificationDetailScreen extends StatelessWidget {
       appBar: AppBar(
         // elevation: 0,
         surfaceTintColor: Colors.transparent,
-        titleSpacing: 0,
         title: Row(
           children: [
             if (entry.appIcon != null)
@@ -48,6 +48,14 @@ class NotificationDetailScreen extends StatelessWidget {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            onPressed: () => _launchApp(context),
+            icon: const Icon(Icons.open_in_new_rounded),
+            tooltip: 'Open ${entry.appName}',
+          ),
+          const SizedBox(width: 4),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -72,5 +80,18 @@ class NotificationDetailScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _launchApp(BuildContext context) async {
+    final channel = NotificationChannel();
+    try {
+      await channel.launchApp(entry.packageName);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open ${entry.appName}')),
+        );
+      }
+    }
   }
 }

@@ -33,4 +33,10 @@ class NotificationChannel {
     }
     return result.map((item) => Map<String, dynamic>.from(item as Map)).toList();
   }
+
+  Future<void> launchApp(String packageName) async {
+    await _methodChannel.invokeMethod<void>('launchApp', {
+      'packageName': packageName,
+    });
+  }
 }
