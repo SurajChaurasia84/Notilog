@@ -9,29 +9,10 @@ object NativeNotificationBuffer {
     private const val retentionMillis = 24 * 60 * 60 * 1000L
 
     fun appendRecent(context: Context, payload: JSONObject) {
-        val cutoff = cutoffTimestamp()
-        val file = bufferFile(context)
-        val temp = tempFile(context)
-
-        temp.bufferedWriter().use { writer ->
-            if (file.exists()) {
-                file.bufferedReader().useLines { lines ->
-                    lines.forEach { line ->
-                        val json = parseRecent(line, cutoff) ?: return@forEach
-                        writer.append(json.toString())
-                        writer.newLine()
-                    }
-                }
-            }
-
-            if (timestampOf(payload) >= cutoff) {
-                writer.append(payload.toString())
-                writer.newLine()
-            }
-        }
-
-        temp.copyTo(file, overwrite = true)
-        temp.delete()
+        try {
+            val file = bufferFile(context)
+            file.appendText(payload.toString() + "\n")
+        } catch (_: Exception) {}
     }
 
     fun drainRecent(context: Context): List<Map<String, Any?>> {

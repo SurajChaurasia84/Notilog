@@ -69,20 +69,23 @@ class NotificationHistoryService : NotificationListenerService() {
     }
 
     private fun drawableToBytes(drawable: Drawable): ByteArray? {
-        val bitmap = when (drawable) {
-            is BitmapDrawable -> drawable.bitmap
-            else -> {
-                val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 64
-                val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 64
-                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bitmap)
-                drawable.setBounds(0, 0, canvas.width, canvas.height)
-                drawable.draw(canvas)
-                bitmap
-            }
+        val size = 48
+        val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else size
+        val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else size
+        
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+
+        val scaledBitmap = if (width > size || height > size) {
+            Bitmap.createScaledBitmap(bitmap, size, size, true)
+        } else {
+            bitmap
         }
+
         val output = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+        scaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
         return output.toByteArray()
     }
 }

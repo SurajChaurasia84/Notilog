@@ -92,6 +92,11 @@ class NotificationController extends ChangeNotifier {
   }
 
   void _applyFilters() {
+    // Strictly enforce 24h even in the in-memory list
+    final cutoff =
+        DateTime.now().subtract(const Duration(hours: 24)).millisecondsSinceEpoch;
+    _all.removeWhere((e) => e.timestamp < cutoff);
+
     Iterable<NotificationEntry> items = _all;
     if (_appFilter != null) {
       items = items.where((e) => e.appName == _appFilter);

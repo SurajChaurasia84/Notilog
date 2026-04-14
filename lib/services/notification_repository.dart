@@ -48,7 +48,8 @@ class NotificationRepository {
   }
 
   List<NotificationEntry> getAllSorted() {
-    final values = _box.values.toList();
+    final cutoff = _cutoffTimestamp();
+    final values = _box.values.where((e) => e.timestamp >= cutoff).toList();
     values.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return values;
   }
@@ -63,13 +64,15 @@ class NotificationRepository {
 
   Future<void> pruneExpired() async {
     final cutoff = _cutoffTimestamp();
+    final entries = _box.toMap();
     final keysToDelete = <dynamic>[];
-    for (final key in _box.keys) {
-      final entry = _box.get(key);
-      if (entry == null || entry.timestamp < cutoff) {
+    
+    entries.forEach((key, entry) {
+      if (entry.timestamp < cutoff) {
         keysToDelete.add(key);
       }
-    }
+    });
+
     if (keysToDelete.isNotEmpty) {
       await _box.deleteAll(keysToDelete);
     }
@@ -105,7 +108,8 @@ class NotificationRepository {
       appIcon: iconBytes,
     );
     await _box.put(entry.id, entry);
-    await pruneExpired();
+    // Don't prune on every write, it's too expensive and unnecessary 
+    // since we filter in getAllSorted and have a periodic timer.
     return entry;
   }
 

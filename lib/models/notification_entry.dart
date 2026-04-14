@@ -36,6 +36,11 @@ class NotificationEntry extends HiveObject {
   final Uint8List? appIcon;
 
   DateTime get dateTime => DateTime.fromMillisecondsSinceEpoch(timestamp);
+
+  bool get isExpired {
+    final cutoff = DateTime.now().subtract(const Duration(hours: 24)).millisecondsSinceEpoch;
+    return timestamp < cutoff;
+  }
 }
 
 class NotificationEntryAdapter extends TypeAdapter<NotificationEntry> {
