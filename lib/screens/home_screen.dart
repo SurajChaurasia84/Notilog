@@ -264,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _launchPrivacyPolicy() async {
-    final url = Uri.parse('https://www.google.com'); // Placeholder URL
+    final url = Uri.parse('https://surajchaurasia84.github.io/Privacy-Policy/notilog.html');
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
