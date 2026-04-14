@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/notification_entry.dart';
 import '../services/notification_channel.dart';
@@ -101,6 +102,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ? null
                     : () => _confirmClearAll(context),
                 icon: const Icon(Icons.delete_sweep_outlined),
+              ),
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'privacy') {
+                    _launchPrivacyPolicy();
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'privacy',
+                    child: Text('Privacy Policy'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -246,6 +260,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
     if (result == true) {
       await widget.controller.clearAll();
+    }
+  }
+
+  Future<void> _launchPrivacyPolicy() async {
+    final url = Uri.parse('https://www.google.com'); // Placeholder URL
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open Privacy Policy')),
+        );
+      }
     }
   }
 }
