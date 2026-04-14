@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/notification_entry.dart';
@@ -28,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _permissionEnabled = false;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  int _detailExitCount = 0;
+  bool _isBannerLoaded = false;
 
   @override
   void initState() {
@@ -100,7 +103,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 tooltip: 'Clear all',
                 onPressed: notifications.isEmpty
                     ? null
-                    : () => _confirmClearAll(context),
+                    : () {
+                        _loadInterstitialAd(); // Start loading as soon as icon is clicked
+                        _confirmClearAll(context);
+                      },
                 icon: const Icon(Icons.delete_sweep_outlined),
               ),
               PopupMenuButton<String>(
@@ -173,13 +179,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ],
           ),
+          bottomNavigationBar: SizedBox(
+            height: _isBannerLoaded ? 50 : 1, // Minimal height to allow loading
+            child: UnityBannerAd(
+              placementId: 'Banner_Android',
+              onLoad: (placementId) {
+                if (mounted) setState(() => _isBannerLoaded = true);
+              },
+              onClick: (placementId) => print('Banner clicked: $placementId'),
+              onFailed: (placementId, error, message) =>
+                  print('Banner ad $placementId failed: $error $message'),
+            ),
+          ),
         );
       },
     );
   }
 
-  void _openDetail(BuildContext context, NotificationEntry entry) {
-    Navigator.of(context).push(
+  Future<void> _openDetail(BuildContext context, NotificationEntry entry) async {
+    await Navigator.of(context).push(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 280),
         reverseTransitionDuration: Duration.zero,
@@ -197,6 +215,36 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           );
         },
       ),
+    );
+
+    // Ad Logic: Load on 2nd exit, show on 3rd exit to save data
+    _detailExitCount++;
+    if (_detailExitCount == 2) {
+      _loadInterstitialAd(); // Start loading early
+    } else if (_detailExitCount >= 3) {
+      _detailExitCount = 0;
+      _showInterstitialAd();
+    }
+  }
+
+  void _loadInterstitialAd() {
+    UnityAds.load(
+      placementId: 'Interstitial_Android',
+      onComplete: (placementId) => print('Ad Load Complete: $placementId'),
+      onFailed: (placementId, error, message) =>
+          print('Ad Load Failed: $error $message'),
+    );
+  }
+
+  void _showInterstitialAd() {
+    UnityAds.showVideoAd(
+      placementId: 'Interstitial_Android',
+      onComplete: (placementId) {
+        print('Video Ad $placementId completed');
+        _loadInterstitialAd(); // Load next one only after showing
+      },
+      onFailed: (placementId, error, message) =>
+          print('Video Ad $placementId failed: $error $message'),
     );
   }
 
@@ -260,6 +308,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
     if (result == true) {
       await widget.controller.clearAll();
+      _showInterstitialAd(); // Show the ad that started loading when the icon was clicked
     }
   }
 

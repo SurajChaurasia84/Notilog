@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 import 'database/hive_boxes.dart';
 import 'models/notification_entry.dart';
@@ -13,6 +14,15 @@ Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(NotificationEntryAdapter());
   await Hive.openBox<NotificationEntry>(HiveBoxes.notifications);
+
+  // Initialize Unity Ads
+  UnityAds.init(
+    gameId: '6090693',
+    testMode: true,
+    onComplete: () => print('Unity Ads Initialization Complete'),
+    onFailed: (error, message) =>
+        print('Unity Ads Initialization Failed: $error $message'),
+  );
 
   final repository = NotificationRepository();
   await repository.drainNativeBuffer();
