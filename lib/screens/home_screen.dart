@@ -13,10 +13,7 @@ import '../widgets/permission_banner.dart';
 import 'detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({
-    super.key,
-    required this.controller,
-  });
+  const HomeScreen({super.key, required this.controller});
 
   final NotificationController controller;
 
@@ -81,11 +78,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             surfaceTintColor: Colors.transparent,
             title: Row(
               children: [
-                Image.asset(
-                  'assets/bell.png',
-                  width: 30,
-                  height: 30,
-                ),
+                Image.asset('assets/bell.png', width: 30, height: 30),
                 const SizedBox(width: 8),
                 const Text(
                   'Notilog',
@@ -196,7 +189,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  Future<void> _openDetail(BuildContext context, NotificationEntry entry) async {
+  Future<void> _openDetail(
+    BuildContext context,
+    NotificationEntry entry,
+  ) async {
     await Navigator.of(context).push(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 280),
@@ -217,11 +213,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
     );
 
-    // Ad Logic: Load on 2nd exit, show on 3rd exit to save data
+    // Ad Logic: Load on 1st exit, show on 2nd exit
     _detailExitCount++;
-    if (_detailExitCount == 2) {
-      _loadInterstitialAd(); // Start loading early
-    } else if (_detailExitCount >= 3) {
+    if (_detailExitCount == 1) {
+      _loadInterstitialAd();
+    } else if (_detailExitCount >= 2) {
       _detailExitCount = 0;
       _showInterstitialAd();
     }
@@ -270,7 +266,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete notification'),
-        content: const Text('Are you sure you want to delete this notification?'),
+        content: const Text(
+          'Are you sure you want to delete this notification?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -313,7 +311,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _launchPrivacyPolicy() async {
-    final url = Uri.parse('https://surajchaurasia84.github.io/Privacy-Policy/notilog.html');
+    final url = Uri.parse(
+      'https://surajchaurasia84.github.io/Privacy-Policy/notilog.html',
+    );
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
@@ -327,10 +327,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 }
 
 class _CategoryTabs extends StatelessWidget {
-  const _CategoryTabs({
-    required this.value,
-    required this.onChanged,
-  });
+  const _CategoryTabs({required this.value, required this.onChanged});
 
   final AppCategoryFilter value;
   final ValueChanged<AppCategoryFilter> onChanged;
@@ -352,11 +349,7 @@ class _CategoryTabs extends StatelessWidget {
     );
   }
 
-  Widget _buildTab(
-    ThemeData theme,
-    AppCategoryFilter filter,
-    String label,
-  ) {
+  Widget _buildTab(ThemeData theme, AppCategoryFilter filter, String label) {
     final selected = value == filter;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
