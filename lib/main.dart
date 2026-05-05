@@ -18,7 +18,7 @@ Future<void> main() async {
   // Initialize Unity Ads
   UnityAds.init(
     gameId: '6090693',
-    testMode: true,
+    testMode: false,
     onComplete: () => print('Unity Ads Initialization Complete'),
     onFailed: (error, message) =>
         print('Unity Ads Initialization Failed: $error $message'),
